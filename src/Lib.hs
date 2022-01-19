@@ -20,6 +20,7 @@ import Text.PrettyPrint.Boxes as Box hiding ((<>))
 
 data Stats = Stats
   { _nrWords :: Int,
+    _points :: Int,
     _nrPangrams :: Int,
     _histSingle :: Histogram (Char, Int),
     _histDouble :: Histogram (Char, Char)
@@ -30,19 +31,20 @@ untally :: Stats -> [String] -> Stats
 untally = foldr f'
   where
     f' :: String -> Stats -> Stats
-    f' word@(c1 : c2 : _) (Stats nw np hs hd) =
+    f' word@(c1 : c2 : _) (Stats nw pts np hs hd) =
       let isPangram = length (nub word) == 7
           n = length word
-       in Stats (nw - 1) (if isPangram then np - 1 else np) (H.decrement (c1, n) hs) (H.decrement (c1, c2) hd)
+          pts' = if n == 4 then 1 else n + if isPangram then 7 else 0
+       in Stats (nw - 1) (pts - pts') (if isPangram then np - 1 else np) (H.decrement (c1, n) hs) (H.decrement (c1, c2) hd)
     f' _ _ = undefined
 
 showStats :: Stats -> String
-showStats (Stats nWords nPangrams nSingles nPairs) =
+showStats (Stats nWords points nPangrams nSingles nPairs) =
   Box.render $ summary /+/ singles /+/ doubles
   where
     boxs :: Show a => a -> Box
     boxs = text . show
-    summary = ("Remaining words:" // "Remaining pangrams:") <+> (boxs nWords // boxs nPangrams)
+    summary = ("Remaining words:" // "Remaining points:" // "Remaining pangrams:") <+> (boxs nWords // boxs points // boxs nPangrams)
     singles = letterCol <+> table <+> sumCol
       where
         (letters, counts) = let (ls, cs) = unzip $ H.keys nSingles in (nub ls, nub cs)
@@ -79,6 +81,8 @@ parseStats :: Parser Stats
 parseStats = do
   seek "WORDS:"
   nrWords <- next decimal
+  seek "POINTS:"
+  points <- next decimal
   seek "PANGRAMS:"
   pangrams <- next decimal
   nextLine
@@ -97,7 +101,7 @@ parseStats = do
     single '-'
     count <- decimal
     pure ((c1, c2), count)
-  pure $ Stats nrWords pangrams (H.fromCountList $ concat counts) (H.fromCountList pairs)
+  pure $ Stats nrWords points pangrams (H.fromCountList $ concat counts) (H.fromCountList pairs)
   where
     nextLine = void $ next eol
     ascii = satisfy isAsciiUpper <|> (toUpper <$> satisfy isAsciiLower)
