@@ -43,6 +43,6 @@
         };
         flake = pkgs.hsPkgs.flake { };
       in
-      flake // { defaultPackage = flake.packages."spelling-beetle:exe:spelling-beetle-exe"; }
+      flake // { defaultPackage = flake.packages."spelling-beetle:exe:spelling-beetle"; }
     );
 }
