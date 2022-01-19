@@ -42,7 +42,7 @@ showStats (Stats nWords nPangrams nSingles nPairs) =
   where
     boxs :: Show a => a -> Box
     boxs = text . show
-    summary = ("Words" // "Pangrams") <+> (boxs nWords // boxs nPangrams)
+    summary = ("Remaining words:" // "Remaining pangrams:") <+> (boxs nWords // boxs nPangrams)
     singles = letterCol <+> table <+> sumCol
       where
         (letters, counts) = let (ls, cs) = unzip $ H.keys nSingles in (nub ls, nub cs)
