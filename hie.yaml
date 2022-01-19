@@ -1,0 +1,16 @@
+cradle:
+  multi:
+    # - path: "ignore/"
+    #   config: {cradle: {none: }}
+
+    - path: "src"
+      config: {cradle: {cabal: {component: "lib:spelling-beetle"}}}
+
+    - path: "app"
+      config: {cradle: {cabal: {component: "spelling-beetle:spelling-beetle-exe"}}}
+
+    - path: "test"
+      config: {cradle: {cabal: {component: "spelling-beetle:spelling-beetle-test"}}}
+
+    - path: "bench"
+      config: {cradle: {cabal: {component: "spelling-beetle:spelling-beetle-bench"}}}

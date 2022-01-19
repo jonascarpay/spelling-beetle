@@ -1,0 +1,5 @@
+packages:
+  ./
+
+package spelling-beetle
+  tests: True
