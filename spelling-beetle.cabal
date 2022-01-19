@@ -33,36 +33,17 @@ library
   hs-source-dirs:  src
   exposed-modules: Lib
   build-depends:
+    , boxes
     , containers
+    , histogram-simple
+    , megaparsec
     , mtl
+    , parser-combinators
+    , text
 
-executable spelling-beetle-exe
+executable spelling-beetle
   import:         common-options
   hs-source-dirs: app
   main-is:        Main.hs
   build-depends:  spelling-beetle
-  ghc-options:    -threaded -rtsopts -with-rtsopts=-N
-
-test-suite spelling-beetle-test
-  import:         common-options
-  type:           exitcode-stdio-1.0
-  hs-source-dirs: test
-  main-is:        Spec.hs
-  build-depends:
-    , hspec
-    , HUnit
-    , spelling-beetle
-    , QuickCheck
-
-  ghc-options:    -threaded -rtsopts -with-rtsopts=-N
-
-benchmark spelling-beetle-bench
-  import:         common-options
-  type:           exitcode-stdio-1.0
-  hs-source-dirs: bench
-  main-is:        Main.hs
-  build-depends:
-    , criterion
-    , spelling-beetle
-
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N

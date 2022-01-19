@@ -1,4 +1,4 @@
-import Lib
+import Lib (defaultMain)
 
 main :: IO ()
-main = putStrLn "heyyyyyy"
+main = defaultMain
