@@ -1,6 +1,6 @@
 cabal-version:   2.4
 name:            spelling-beetle
-version:         0
+version:         1.0
 license:         BSD-3-Clause
 build-type:      Simple
 license-file:    LICENSE
@@ -8,31 +8,21 @@ author:          Jonas Carpay
 maintainer:      Jonas Carpay <jonascarpay@gmail.com>
 copyright:       2022 Jonas Carpay
 tested-with:     GHC ==8.6.3 || ==8.8.3 || ==8.10.5
-extra-doc-files:
-  CHANGELOG.md
-  README.md
+extra-doc-files: README.md
+synopsis:        A Spelling Bee Tool
+homepage:        https://github.com/jonascarpay/spelling-beetle#readme
 
--- category:
--- description:     description
--- synopsis:        one-line synopsis
--- homepage:        https://github.com/FIXME/spelling-beetle#readme
--- source-repository head
---   type:     git
---   location: git://github.com/FIXME/spelling-beetle.git
+source-repository head
+  type:     git
+  location: git://github.com/jonascarpay/spelling-beetle.git
 
-common common-options
-  build-depends:    base >=4.9 && <5
+executable spelling-beetle
   default-language: Haskell2010
-  ghc-options:
-    -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
-    -Wincomplete-record-updates -Wredundant-constraints
-    -fhide-source-paths -Wpartial-fields
-
-library
-  import:          common-options
-  hs-source-dirs:  src
-  exposed-modules: Lib
+  hs-source-dirs:   app
+  main-is:          Main.hs
+  ghc-options:      -threaded -rtsopts -with-rtsopts=-N
   build-depends:
+    , base                >=4.9 && <5
     , boxes
     , containers
     , histogram-simple
@@ -41,9 +31,7 @@ library
     , parser-combinators
     , text
 
-executable spelling-beetle
-  import:         common-options
-  hs-source-dirs: app
-  main-is:        Main.hs
-  build-depends:  spelling-beetle
-  ghc-options:    -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+    -Wincomplete-record-updates -Wredundant-constraints
+    -fhide-source-paths -Wpartial-fields
