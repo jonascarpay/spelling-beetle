@@ -5,7 +5,7 @@ import Data.Char (isAsciiLower, isAsciiUpper, toUpper)
 import Data.Function (on)
 import Data.Histogram (Histogram)
 import qualified Data.Histogram as H
-import Data.List (groupBy, nub)
+import Data.List (groupBy, nub, sort)
 import Data.Text (Text)
 import qualified Data.Text.IO as T
 import Data.Void (Void)
@@ -57,7 +57,7 @@ showStats (Stats nWords points nPangrams nSingles nPairs) =
     summary = ("Remaining words:" // "Remaining points:" // "Remaining pangrams:") <+> (boxs nWords // boxs points // boxs nPangrams)
     singles = letterCol <+> table <+> sumCol
       where
-        (letters, counts) = let (ls, cs) = unzip $ H.keys nSingles in (nub ls, nub cs)
+        (letters, counts) = let (ls, cs) = unzip $ H.keys nSingles in (sort (nub ls), sort (nub cs))
         letterCol = " " // vcat left (fmap Box.char letters) // "Σ"
         table = hsep 1 top $ do
           count <- counts
