@@ -1,48 +1,45 @@
 {
   description = "spelling-beetle";
 
-  inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
-  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-22.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils, haskellNix }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        overlay = self: _: {
-          hsPkgs =
-            self.haskell-nix.project' rec {
-              src = ./.;
-              compiler-nix-name = "ghc8107";
-              shell = {
-                tools = {
-                  cabal = { };
-                  ghcid = { };
-                  haskell-language-server = { };
-                  hlint = { };
-                  ormolu = { };
-                };
-                ## ormolu that uses ImportQualifiedPost.
-                ## To use, remove ormolu from the shell.tools section above, and uncomment the following lines.
-                # buildInputs =
-                #   let
-                #     ormolu = pkgs.haskell-nix.tool compiler-nix-name "ormolu" "latest";
-                #     ormolu-wrapped = pkgs.writeShellScriptBin "ormolu" ''
-                #       ${ormolu}/bin/ormolu --ghc-opt=-XImportQualifiedPost $@
-                #     '';
-                #   in
-                #   [ ormolu-wrapped ];
-              };
+  outputs = inputs:
+    let
+      overlay = final: prev: {
+        haskell = prev.haskell // {
+          packageOverrides = hfinal: hprev:
+            prev.haskell.packageOverrides hfinal hprev // {
+              spelling-beetle = hfinal.callCabal2nix "spelling-beetle" ./. { };
             };
         };
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [
-            haskellNix.overlay
-            overlay
+
+        spelling-beetle = final.haskell.lib.compose.justStaticExecutables final.haskellPackages.spelling-beetle;
+
+        spelling-beetle-shell = final.haskellPackages.shellFor {
+          withHoogle = false;
+          packages = hpkgs: [ hpkgs.spelling-beetle ];
+          nativeBuildInputs = [
+            final.cabal-install
+            final.ghcid
+            final.haskellPackages.haskell-language-server
+            final.hlint
+            final.ormolu
+            final.bashInteractive # see: https://discourse.nixos.org/t/interactive-bash-with-nix-develop-flake/15486
           ];
         };
-        flake = pkgs.hsPkgs.flake { };
-      in
-      flake // { defaultPackage = flake.packages."spelling-beetle:exe:spelling-beetle"; }
-    );
+      };
+
+      perSystem = system:
+        let
+          pkgs = import inputs.nixpkgs { inherit system; overlays = [ overlay ]; };
+        in
+        {
+          defaultPackage = pkgs.spelling-beetle;
+          packages.spelling-beetle = pkgs.spelling-beetle;
+          devShell = pkgs.spelling-beetle-shell;
+          checks.integration-tests = import ./test pkgs;
+        };
+    in
+    { inherit overlay; } // inputs.flake-utils.lib.eachDefaultSystem perSystem;
 }
